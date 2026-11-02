@@ -1,4 +1,5 @@
 # Directory Structure
+```bash
 .
 ├── bot
 │   ├── discord
@@ -9,5 +10,4 @@
 │   └── whatsapp
 ├── misc
 └── youtube
-
-
+```
