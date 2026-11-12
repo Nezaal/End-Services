@@ -2,10 +2,9 @@
 
 const { HttpError } = require('./httpError');
 const { parseWhatsAppAddress } = require('./phone');
+const { MESSAGE } = require('../config/constants');
 
-const MAX_TEXT_LENGTH = 1600;
-const MAX_MEDIA_URL_LENGTH = 4096;
-const MESSAGE_SID_PATTERN = /^(SM|MM)[0-9a-fA-F]{32}$/;
+const { MAX_TEXT_LENGTH, MAX_MEDIA_URL_LENGTH, SID_PATTERN: MESSAGE_SID_PATTERN } = MESSAGE;
 
 function requireWhatsAppAddress(value, field) {
   const parsed = parseWhatsAppAddress(value);

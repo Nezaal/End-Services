@@ -53,7 +53,14 @@ const config = {
   accountSidValid,
   validateSignature: toBoolean(process.env.TWILIO_VALIDATE_SIGNATURE, true),
   uploadTtlMinutes: toPositiveInteger(process.env.UPLOAD_TTL_MINUTES, 60),
-  inboundStoreFile: resolvePath(process.env.INBOUND_STORE_FILE, 'data/inbound-messages.json'),
+  uploadDir: resolvePath(process.env.MEDIA_UPLOAD_DIR, 'uploads'),
+  mediaCleanupIntervalMs: toPositiveInteger(
+    process.env.MEDIA_CLEANUP_INTERVAL_MS,
+    5 * 60 * 1000
+  ),
+  mediaDownloadTimeoutMs: toPositiveInteger(process.env.MEDIA_DOWNLOAD_TIMEOUT_MS, 10000),
+  mediaCacheMaxAge: trim(process.env.MEDIA_CACHE_MAX_AGE) || '1h',
+  inboundDbFile: resolvePath(process.env.INBOUND_DB_FILE, 'data/whatsapp.db'),
   inboundStoreLimit: toPositiveInteger(process.env.INBOUND_STORE_LIMIT, 500),
   enableInboundSimulator: toBoolean(
     process.env.ENABLE_INBOUND_SIMULATOR,

@@ -3,7 +3,7 @@
 const express = require('express');
 const multer = require('multer');
 
-const { config } = require('../config/env');
+const { MULTER } = require('../config/constants');
 const {
   getMessage,
   sendMedia,
@@ -15,10 +15,10 @@ const router = express.Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: config.maxVideoBytes,
-    files: 1,
-    fields: 10,
-    parts: 12,
+    fileSize: MULTER.FILE_SIZE,
+    files: MULTER.MAX_FILES,
+    fields: MULTER.MAX_FIELDS,
+    parts: MULTER.MAX_PARTS,
   },
 });
 

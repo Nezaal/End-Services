@@ -10,17 +10,18 @@ process.env.TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886';
 process.env.PUBLIC_BASE_URL = 'http://localhost:3000';
 process.env.TWILIO_VALIDATE_SIGNATURE = 'true';
 process.env.ENABLE_INBOUND_SIMULATOR = 'true';
-process.env.INBOUND_STORE_FILE = path.join(os.tmpdir(), `wa-inbound-${process.pid}.json`);
+process.env.INBOUND_DB_FILE = path.join(os.tmpdir(), `wa-inbound-${process.pid}.db`);
 
 const { after, beforeEach, test } = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('fs/promises');
+const { DatabaseSync } = require('node:sqlite');
 const request = require('supertest');
 
 const { createApp } = require('../src/app');
 const { config } = require('../src/config/env');
 const { twilio } = require('../src/config/twilio');
-const inboundStore = require('../src/services/inboundStore');
+const inboundStore = require('../src/db/inboundStore');
 const mediaService = require('../src/services/mediaService');
 
 const app = createApp();
@@ -74,8 +75,10 @@ beforeEach(async () => {
 
 after(async () => {
   await inboundStore.clear();
-  await fs.rm(config.inboundStoreFile, { force: true });
-  await fs.rm(`${config.inboundStoreFile}.tmp`, { force: true });
+  await inboundStore.close();
+  await fs.rm(config.inboundDbFile, { force: true });
+  await fs.rm(`${config.inboundDbFile}-wal`, { force: true });
+  await fs.rm(`${config.inboundDbFile}-shm`, { force: true });
 });
 
 test('accepts a signed inbound text webhook, stores it, and returns empty TwiML', async () => {
@@ -94,8 +97,11 @@ test('accepts a signed inbound text webhook, stores it, and returns empty TwiML'
   assert.deepEqual(stored.media, []);
 
   await inboundStore.flush();
-  const raw = await fs.readFile(config.inboundStoreFile, 'utf8');
-  assert.ok(JSON.parse(raw).some((message) => message.sid === MESSAGE_SID));
+
+  const db = new DatabaseSync(config.inboundDbFile, { readOnly: true });
+  const row = db.prepare('SELECT sid FROM inbound_messages WHERE sid = ?').get(MESSAGE_SID);
+  db.close();
+  assert.ok(row);
 
   const list = await request(app).get('/api/inbound-messages');
 

@@ -2,11 +2,11 @@
 
 const { HttpError } = require('../utils/httpError');
 const { isAllowedMimeType } = require('../utils/media');
-const inboundStore = require('./inboundStore');
+const { MESSAGE } = require('../config/constants');
+const inboundStore = require('../db/inboundStore');
 const mediaService = require('./mediaService');
 
-const MESSAGE_SID_PATTERN = /^(SM|MM)[0-9a-fA-F]{32}$/;
-const MAX_INBOUND_MEDIA = 10;
+const { SID_PATTERN: MESSAGE_SID_PATTERN, MAX_INBOUND_MEDIA } = MESSAGE;
 
 function parseInboundPayload(payload) {
   const source = payload || {};

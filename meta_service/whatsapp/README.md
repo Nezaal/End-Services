@@ -36,7 +36,7 @@ meta_service/whatsapp/
 │   ├── services/      # Business logic (message sending, media storage, inbound persistence)
 │   ├── utils/         # Validation, phone formatting, logging, and helpers
 │   ├── app.js         # Express app initialization
-│   └── server.js      # Server entry point
+│   └── index.js       # Server entry point
 ├── test/              # Unit and integration test suite
 ├── uploads/           # Stored media files (ignored by git)
 ├── .env.example       # Example environment variables
@@ -135,3 +135,4 @@ npm test
 ```
 
 A Postman collection and local environment are also provided in the [`postman/`](./postman/) directory.
+

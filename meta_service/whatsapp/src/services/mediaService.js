@@ -5,6 +5,7 @@ const path = require('path');
 const axios = require('axios');
 
 const { config } = require('../config/env');
+const { HTTP } = require('../config/constants');
 const { HttpError } = require('../utils/httpError');
 const logger = require('../utils/logger');
 const {
@@ -15,12 +16,8 @@ const {
   mediaKind,
 } = require('../utils/media');
 
-const UPLOAD_DIR = path.resolve(__dirname, '../../uploads');
-const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
-const DOWNLOAD_TIMEOUT_MS = 10000;
-
 async function ensureUploadDir() {
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
+  await fs.mkdir(config.uploadDir, { recursive: true });
 }
 
 function buildPublicMediaUrl(filename) {
@@ -86,7 +83,7 @@ async function persistMediaBuffer(buffer, { requirePublicUrl = false } = {}) {
     : buildPublicMediaUrl(filename);
 
   await ensureUploadDir();
-  await fs.writeFile(path.join(UPLOAD_DIR, filename), buffer);
+  await fs.writeFile(path.join(config.uploadDir, filename), buffer);
 
   return {
     filename,
@@ -124,10 +121,10 @@ async function downloadInboundMedia(media) {
 
   const request = {
     responseType: 'arraybuffer',
-    timeout: DOWNLOAD_TIMEOUT_MS,
+    timeout: config.mediaDownloadTimeoutMs,
     maxContentLength: config.maxVideoBytes,
     maxBodyLength: config.maxVideoBytes,
-    maxRedirects: 3,
+    maxRedirects: HTTP.MEDIA_MAX_REDIRECTS,
     headers: { Accept: '*/*' },
   };
 
@@ -170,7 +167,7 @@ async function cleanupExpiredMedia() {
   await ensureUploadDir();
 
   const cutoff = Date.now() - config.uploadTtlMinutes * 60 * 1000;
-  const entries = await fs.readdir(UPLOAD_DIR, { withFileTypes: true });
+  const entries = await fs.readdir(config.uploadDir, { withFileTypes: true });
   let removed = 0;
 
   for (const entry of entries) {
@@ -178,7 +175,7 @@ async function cleanupExpiredMedia() {
       continue;
     }
 
-    const filePath = path.join(UPLOAD_DIR, entry.name);
+    const filePath = path.join(config.uploadDir, entry.name);
 
     try {
       const stats = await fs.stat(filePath);
@@ -204,14 +201,13 @@ function startMediaCleanup() {
     cleanupExpiredMedia().catch((err) => {
       logger.warn('Media cleanup failed', { error: err.message });
     });
-  }, CLEANUP_INTERVAL_MS);
+  }, config.mediaCleanupIntervalMs);
 
   timer.unref();
   return timer;
 }
 
 module.exports = {
-  UPLOAD_DIR,
   buildPublicMediaUrl,
   cleanupExpiredMedia,
   downloadInboundMedia,

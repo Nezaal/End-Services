@@ -2,11 +2,11 @@
   "name": "twilio-whatsapp-integration",
   "version": "1.0.0",
   "description": "Minimal Express backend for sending and receiving WhatsApp messages through Twilio",
-  "main": "src/server.js",
+  "main": "src/index.js",
   "private": true,
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js",
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
     "tunnel": "ngrok http 3000",
     "test": "node --test"
   },

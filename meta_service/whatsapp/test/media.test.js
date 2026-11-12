@@ -9,7 +9,7 @@ process.env.TWILIO_AUTH_TOKEN = 'test-auth-token';
 process.env.TWILIO_WHATSAPP_NUMBER = 'whatsapp:+14155238886';
 process.env.PUBLIC_BASE_URL = 'http://localhost:3000';
 process.env.TWILIO_VALIDATE_SIGNATURE = 'true';
-process.env.INBOUND_STORE_FILE = path.join(os.tmpdir(), `wa-media-${process.pid}.json`);
+process.env.INBOUND_DB_FILE = path.join(os.tmpdir(), `wa-media-${process.pid}.db`);
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
@@ -56,7 +56,7 @@ function stub(object, method, implementation) {
 
 async function uploadNames() {
   try {
-    return new Set(await fs.readdir(mediaService.UPLOAD_DIR));
+    return new Set(await fs.readdir(config.uploadDir));
   } catch (err) {
     return new Set();
   }
@@ -68,7 +68,7 @@ async function removeNewUploads(before) {
 
   await Promise.all(
     created.map((name) =>
-      fs.unlink(path.join(mediaService.UPLOAD_DIR, name)).catch(() => {})
+      fs.unlink(path.join(config.uploadDir, name)).catch(() => {})
     )
   );
 }

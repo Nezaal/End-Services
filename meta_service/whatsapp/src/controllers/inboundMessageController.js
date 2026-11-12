@@ -1,6 +1,6 @@
 'use strict';
 
-const inboundStore = require('../services/inboundStore');
+const inboundStore = require('../db/inboundStore');
 const { HttpError } = require('../utils/httpError');
 const { requireMessageSid } = require('../utils/validation');
 
